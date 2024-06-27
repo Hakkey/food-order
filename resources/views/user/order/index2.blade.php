@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="user-status" content="{{ Auth::check() ? 'Logged In' : 'Logged Out' }}">
 
     <title>Delicious Bootstrap Template - Index</title>
     <meta content="" name="description">
@@ -180,6 +181,45 @@
 
     </main><!-- End #main -->
 
+    <!-- Button trigger modal -->
+{{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+    Launch static backdrop modal
+  </button> --}}
+  
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Please fill in the fields</h1>
+          {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
+        </div>
+        <div class="modal-body">
+          {{-- // input text for user to input their phone number, table number and order type --}}
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phone" name="phone">
+            </div>
+            <div class="mb-3">
+                <label for="table" class="form-label">Table Number</label>
+                <input type="text" class="form-control" id="table" name="table">
+            </div>
+            <div class="mb-3">
+                <label for="order_type" class="form-label">Order Type</label>
+                <select class="form-select" id="order_type" name="order_type">
+                    <option value="Dine In">Dine In</option>
+                    <option value="Take Away">Take Away</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+          {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> --}}
+          <button type="button" class="btn btn-warning proceed-btn">Proceed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <!-- ======= Footer ======= -->
     <footer id="footer">
         <div class="container">
@@ -218,6 +258,50 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+
+            var phone;
+            var table;
+            var order_type;
+
+            // Check if user is logged in
+            var userStatus = $('meta[name="user-status"]').attr('content');
+
+            if (userStatus === 'Logged Out') {
+                // Show the modal
+                $('#staticBackdrop').modal('show');
+            }
+
+            // Proceed button
+            $('.proceed-btn').click(function() {
+                phone = $('#phone').val();
+                table = $('#table').val();
+                order_type = $('#order_type').val();
+
+                if (phone === '' || table === '') {
+                    alert('Please fill in the fields');
+                } else {
+                    // Save the data to the database
+                    // $.ajax({
+                    //     url: '/order/save',
+                    //     type: 'POST',
+                    //     data: {
+                    //         _token: '{{ csrf_token() }}',
+                    //         phone: phone,
+                    //         table: table,
+                    //         order_type: order_type
+                    //     },
+                    //     success: function(response) {
+                    //         console.log(response);
+                    //     }
+                    // });
+
+                    // Close the modal
+                    $('#staticBackdrop').modal('hide');
+                }
+            });
+
+
+
             $('.add-to-order').click(function() {
                 $(this).hide();
                 var foodId = $(this).data('id');
@@ -329,6 +413,7 @@
 
             // submit order to next page for payment with all the data to
             $('.submit-order').click(function() {
+                console.log(phone);
                 var order = [];
                 $('.show-order .item').each(function() {
                     var food = $(this).find('.row .food-name').text();
@@ -363,6 +448,9 @@
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
+                        phone: phone,
+                        table: table,
+                        order_type: order_type,
                         order: JSON.stringify(order)
                     },
                     success: function(response) {
@@ -372,7 +460,8 @@
 
 
 
-                window.location.href = '/order/payment?order=' + JSON.stringify(order);
+                // window.location.href = '/order/payment?order=' + JSON.stringify(order) + '&phone=' + phone +
+                //     '&table=' + table + '&order_type=' + order_type;
             });
 
             function calculateTotal() {

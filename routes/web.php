@@ -14,6 +14,10 @@ Route::post('/cart/save-for-later/{id}', [App\Http\Controllers\CartController::c
 // Add route for page order
 Route::get('/order', [App\Http\Controllers\OrderController::class, 'index'])->name('order.index');
 Route::get('order/payment', [App\Http\Controllers\OrderController::class, 'payment'])->name('order.payment');
+// Route for saving template
+Route::post('order/save-template', [App\Http\Controllers\OrderController::class, 'saveTemplate'])->name('order.save-template');
+// Route for saving order
+Route::post('order/save', [App\Http\Controllers\OrderController::class, 'save'])->name('order.save');
 
 
 

@@ -2,6 +2,8 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <style>
     body {
         margin-top: 20px;
@@ -32,7 +34,8 @@
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-6 text-right">
                     <p>
-                        <em>Date: 1st November, 2013</em>
+                        {{-- <em>Date: 1st November, 2013</em> --}}
+                        <em>Date: {{ now()->format('jS F, Y') }}</em>
                     </p>
                     <p>
                         <em>Receipt #: 34522677W</em>
@@ -89,16 +92,16 @@
                     </tbody>
                 </table>
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-6">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
                         <button type="button" class="btn btn-warning btn-lg btn-block save-template">
                             Save Order as Template
                         </button></td>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6">
+                    {{-- <div class="col-xs-6 col-sm-6 col-md-6">
                         <button type="button" class="btn btn-success btn-lg btn-block btn-pay-now">
                             Pay Now
                         </button></td>
-                    </div>
+                    </div> --}}
 
                 </div>
                 
@@ -114,6 +117,13 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
         $(document).ready(function() {
+
+            // Get phone number from url
+            const urlParams = new URLSearchParams(window.location.search);
+            const phone = urlParams.get('phone');
+            const table = urlParams.get('table');
+            const order_type = urlParams.get('order_type');
+
             $('.btn-pay-now').click(function() {
                 Swal.fire({
                     title: 'Payment Success',
@@ -134,6 +144,8 @@
 
             // Button to save template with sweet alert input text to save all the order into database
             $('.save-template').click(function() {
+                let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
                 Swal.fire({
                     title: 'Save Template',
                     input: 'text',
@@ -142,35 +154,38 @@
                     showCancelButton: true,
                     confirmButtonText: 'Save',
                     showLoaderOnConfirm: true,
-                    preConfirm: (templateName) => {
-                        return fetch(`/order/save-template`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                                },
-                                body: JSON.stringify({
-                                    templateName: templateName,
-                                    order: {!! json_encode($order) !!}
-                                })
+                    preConfirm: (template_name) => {
+                        // Save template to database using ajax
+                        return fetch("{{ route('order.save-template') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                phone: phone,
+                                table: table,
+                                order_type: order_type,
+                                order: @json($order),
+                                template_name: template_name
                             })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error(response.statusText)
-                                }
-                                return response.json()
-                            })
-                            .catch(error => {
-                                Swal.showValidationMessage(
-                                    `Request failed: ${error}`
-                                )
-                            })
+                        }).then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText)
+                            }
+                            return response.json()
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                            )
+                        })
                     },
                     allowOutsideClick: () => !Swal.isLoading()
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        console.log(result);
                         Swal.fire({
-                            title: `Template saved as: ${result.value.templateName}`,
+                            title: `Template saved as: ${result.value.template_name}`,
                             icon: 'success',
                             confirmButtonText: 'OK'
                         });
