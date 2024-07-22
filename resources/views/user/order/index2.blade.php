@@ -83,12 +83,12 @@
                     </div>
                 </div>
 
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-md-12">
                         <a href="#why-us" class="book-a-table-btn btn-sm float-end bag-order"><i class="bi bi-bag"></i>
                             0</a>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="row menu-container">
                     {{-- @foreach ($categories as $category)
@@ -181,44 +181,40 @@
 
     </main><!-- End #main -->
 
-    <!-- Button trigger modal -->
-{{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-    Launch static backdrop modal
-  </button> --}}
-  
-  <!-- Modal -->
-  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Please fill in the fields</h1>
-          {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
-        </div>
-        <div class="modal-body">
-          {{-- // input text for user to input their phone number, table number and order type --}}
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="phone" name="phone">
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Please fill in the fields</h1>
+                    {{-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> --}}
+                </div>
+                <div class="modal-body">
+                    {{-- // input text for user to input their phone number, table number and order type --}}
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="table" class="form-label">Table Number</label>
+                        <input type="text" class="form-control" id="table" name="table">
+                    </div>
+                    <div class="mb-3">
+                        <label for="order_type" class="form-label">Order Type</label>
+                        <select class="form-select" id="order_type" name="order_type">
+                            <option value="Dine In">Dine In</option>
+                            <option value="Take Away">Take Away</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> --}}
+                    <button type="button" class="btn btn-warning proceed-btn">Proceed</button>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="table" class="form-label">Table Number</label>
-                <input type="text" class="form-control" id="table" name="table">
-            </div>
-            <div class="mb-3">
-                <label for="order_type" class="form-label">Order Type</label>
-                <select class="form-select" id="order_type" name="order_type">
-                    <option value="Dine In">Dine In</option>
-                    <option value="Take Away">Take Away</option>
-                </select>
-            </div>
         </div>
-        <div class="modal-footer">
-          {{-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> --}}
-          <button type="button" class="btn btn-warning proceed-btn">Proceed</button>
-        </div>
-      </div>
     </div>
-  </div>
 
     <!-- ======= Footer ======= -->
     <footer id="footer">
@@ -302,22 +298,30 @@
 
 
 
+
             $('.add-to-order').click(function() {
                 $(this).hide();
                 var foodId = $(this).data('id');
                 $('#added-' + foodId).show();
 
                 var category = $(this).data('category');
+                if (category == '12') {
+                    $('.show-seafood-order').show();
+                    $('#added-' + foodId).hide();
+
+                    $(this).show();
+                }
+
                 var food = $(this).parent().parent().find('.menu-content a').text();
                 var price = $(this).parent().parent().find('.menu-content span').text();
 
                 if (category == 12) {
-                    // Make a list with the quantity and the plus minus button to change to text box to input kilogram
+                    // Make a select dropdown for seafood menu
                     var order = '<div class="item mt-2"><div class="row"><div class="col-md-3 food-name">' +
                         food + '</div><div class="col-md-3 food-price" data-price="' + price + '">' +
                         price +
-                        '</div><div class="col-md-3 quantity"><input type="text" class="form-control data-seafood-price text-center" value="1"></div><div class="col-md-3 qty-price" data-price="' +
-                        price + '">' + price +
+                        '</div><div class="col-md-3 quantity"><select class="form-select cook" id="cook" name="cook"><option value="3 Rasa" class="text-center">3 Rasa</option><option value="Stim Limau" class="text-center">Stim Limau</option></select></div><div class="col-md-3 qty-price" data-price="' +
+                        price + '">' + "TBC" +
                         '</div><div class="col-md-3"></div></div></div>';
 
                     $('.show-seafood-order').append(order);
@@ -389,27 +393,27 @@
             });
 
             // Calculate price for seafood on input
-            $(document).on('input', '.data-seafood-price', function() {
-                var priceElement = $(this).parent().next();
-                var price = parseFloat(priceElement.data('price').replace('RM ', ''));
-                var quantity = parseFloat($(this).val());
+            // $(document).on('input', '.data-seafood-price', function() {
+            //     var priceElement = $(this).parent().next();
+            //     var price = parseFloat(priceElement.data('price').replace('RM ', ''));
+            //     var quantity = parseFloat($(this).val());
 
-                var total = quantity * price;
-                priceElement.text('RM ' + total.toFixed(2));
+            //     var total = quantity * price;
+            //     priceElement.text('RM ' + total.toFixed(2));
 
-                // Update total price
-                calculateTotal();
-                calculateQuantity();
-            });
+            //     // Update total price
+            //     calculateTotal();
+            //     calculateQuantity();
+            // });
 
             // data-seafood-price on focus out to prevent user from inputting negative value
-            $(document).on('focusout', '.data-seafood-price', function() {
-                var quantity = parseFloat($(this).val());
-                if (quantity < 1) {
-                    $(this).val(1);
-                    quantity = 1;
-                }
-            });
+            // $(document).on('focusout', '.data-seafood-price', function() {
+            //     var quantity = parseFloat($(this).val());
+            //     if (quantity < 1) {
+            //         $(this).val(1);
+            //         quantity = 1;
+            //     }
+            // });
 
             // submit order to next page for payment with all the data to
             $('.submit-order').click(function() {
@@ -425,23 +429,28 @@
                         food: food,
                         per_serving: per_serving,
                         qty: qty,
-                        price: price
+                        price: price,
                     });
                 });
 
                 $('.show-seafood-order .item').each(function() {
                     var food = $(this).find('.row .food-name').text();
                     var qty = $(this).find('.row .quantity .data-seafood-price').val();
+                    var type = 'seafood';
                     var price = $(this).find('.row .qty-price').text().replace('RM ', '');
                     var per_serving = parseFloat($(this).find('.row .food-price').data('price')
                         .replace('RM ', ''));
+                    var cook = $(this).find('.row .quantity .cook').val();
                     order.push({
                         food: food,
                         per_serving: per_serving,
                         qty: qty,
-                        price: price
+                        price: price,
+                        type: type,
+                        cook: cook
                     });
                 });
+
 
                 $.ajax({
                     url: '/order/save',
@@ -455,6 +464,13 @@
                     },
                     success: function(response) {
                         console.log(response);
+                        // redirect to loading page along with json order data
+                        // window.location.href = '/order/loading/'+ response.order_id +'?order=' + JSON.stringify(order) + '&phone=' + phone +
+                        //     '&table=' + table + '&order_type=' + order_type;
+
+                        window.location.href = '/order/loading/' + response.order_id;
+
+
                     }
                 });
 
@@ -466,17 +482,24 @@
 
             function calculateTotal() {
                 var total = 0;
+                var seafood_exist = false;
                 $('.show-order .item').each(function() {
                     var price = $(this).find('.row .qty-price').text();
                     total += parseFloat(price.replace('RM ', ''));
                 });
 
+                // Check if there is any seafood order
                 $('.show-seafood-order .item').each(function() {
-                    var price = $(this).find('.row .qty-price').text();
-                    total += parseFloat(price.replace('RM ', ''));
+                    seafood_exist = true;
                 });
-                total = total.toFixed(2); // Round to 2 decimal places after all additions
-                $('.total-price').text('RM ' + total);
+
+                if (!seafood_exist) {
+                    total = total.toFixed(2); // Round to 2 decimal places after all additions
+
+                    $('.total-price').text('RM ' + total);
+                } else {
+                    $('.total-price').text('TBC');
+                }
             }
 
             function calculateOrder() {
@@ -486,11 +509,18 @@
 
             function calculateQuantity() {
                 var quantity = 0;
+
                 $('.show-order .item').each(function() {
                     var qty = $(this).find('.row .quantity .qty').text();
                     quantity += parseInt(qty);
                 });
-                $('.total-quantity').html('<strong>' + quantity + '</strong>');
+
+                $('.show-seafood-order .item').each(function() {
+                    var qty = $(this).find('.row').val();
+                    quantity += parseInt(qty);
+                });
+
+                // $('.total-quantity').html('<strong>' + quantity + '</strong>');
                 $('.bag-order').html('<i class="bi bi-bag"></i> <strong>' + quantity + '</strong>');
             }
 

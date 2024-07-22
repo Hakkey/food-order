@@ -13,11 +13,16 @@ Route::post('/cart/save-for-later/{id}', [App\Http\Controllers\CartController::c
 
 // Add route for page order
 Route::get('/order', [App\Http\Controllers\OrderController::class, 'index'])->name('order.index');
-Route::get('order/payment', [App\Http\Controllers\OrderController::class, 'payment'])->name('order.payment');
+Route::get('order/payment/{id}', [App\Http\Controllers\OrderController::class, 'payment'])->name('order.payment');
 // Route for saving template
 Route::post('order/save-template', [App\Http\Controllers\OrderController::class, 'saveTemplate'])->name('order.save-template');
 // Route for saving order
 Route::post('order/save', [App\Http\Controllers\OrderController::class, 'save'])->name('order.save');
+// Route for loading page
+Route::get('order/loading/{id}', [App\Http\Controllers\OrderController::class, 'loading'])->name('order.loading');
+
+// route to check order status
+Route::get('check-order-status', [App\Http\Controllers\OrderController::class, 'status'])->name('order.status');
 
 
 
@@ -44,6 +49,13 @@ Route::group(['middleware' => ['auth', Admin::class], 'prefix' => 'admin'], func
         'destroy' => 'menus.destroy',
     ]);
     Route::get('menus/datatable', [App\Http\Controllers\MenuController::class, 'datatable'])->name('menus.datatable');
+
+    // orders page
+    Route::get('orders', [App\Http\Controllers\HomeController::class, 'orders'])->name('orders.index');
+    Route::get('orders/completed', [App\Http\Controllers\HomeController::class, 'completed'])->name('orders.completed');
+
+    // update order status
+    Route::post('orders/update-status', [App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
 
 });
 

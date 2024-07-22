@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('table');
+            $table->string('phone_number')->nullable();
             $table->string('order_type');
+            $table->string('status')->default('pending');
+            $table->string('total')->nullable();
             $table->json('items');
             $table->timestamps();
         });

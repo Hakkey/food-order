@@ -18,10 +18,16 @@ class OrderController extends Controller
         return view('user.order.index2', compact('foods', 'categories'));
     }
 
-    public function payment(Request $request)
+    public function payment($id, Request $request)
+    {
+        $order = Order::find($id);
+        return view('user.order.payment', ['order' => $order]);
+    }
+
+    public function loading(Request $request)
     {
         $order = json_decode($request->query('order'), true);
-        return view('user.order.payment', ['order' => $order]);
+        return view('user.order.loading', ['order' => $order]);
     }
 
     public function save(Request $request)
@@ -37,7 +43,15 @@ class OrderController extends Controller
         // $newOrder->items = $order; // You might need to adjust this depending on your database structure
         $newOrder->save();
 
-        return response()->json(['message' => 'Order saved successfully']);
+        // return newly created order id
+        return response()->json(['message' => 'Order saved successfully', 'order' => $order, 'order_id' => $newOrder->id]);
+        
+
+        // redirect to the payment page
+        // return response()->json(['message' => 'Order saved successfully', 'order' => $order]);
+
+
+        // return response()->json(['message' => 'Order saved successfully']);
     }
 
     public function saveTemplate(Request $request)
@@ -57,5 +71,33 @@ class OrderController extends Controller
         $newTemplate->save();
 
         return response()->json(['message' => 'Template saved successfully', 'order' => $order, 'phone' => $phone, 'template_name' => $template_name]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $order = Order::find($request->input('orderId'));
+        $order->status = $request->input('status');
+        $order->total = $request->input('total');
+        $items = $request->input('items');
+        $order->items = json_encode($items);
+
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully']);
+    }
+
+    public function status(Request $request)
+    {
+        $id = $request->input('order_id');
+        $order = Order::find($id);
+        
+        // dd($order->status);
+        
+        // return payment view
+
+
+        // return view('user.order.payment', ['order' => $order]);
+
+        return response()->json(['status' => $order->status]);
     }
 }

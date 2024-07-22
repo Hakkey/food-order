@@ -23,22 +23,16 @@
             <div class="row">
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <address>
-                        <strong>Elf Cafe</strong>
-                        <br>
-                        2135 Sunset Blvd
-                        <br>
-                        Los Angeles, CA 90026
-                        <br>
-                        <abbr title="Phone">P:</abbr> (213) 484-6829
+                        <h3>Table {{ $order->table }}</h3>
                     </address>
                 </div>
                 <div class="col-xs-6 col-sm-6 col-md-6 text-right">
                     <p>
                         {{-- <em>Date: 1st November, 2013</em> --}}
-                        <em>Date: {{ now()->format('jS F, Y') }}</em>
+                        <em>Date: {{ $order->created_at->format('jS F, Y') }}</em>
                     </p>
                     <p>
-                        <em>Receipt #: 34522677W</em>
+                        <em>Receipt #: {{ $order->id }} </em>
                     </p>
                 </div>
             </div>
@@ -51,43 +45,59 @@
                     <thead>
                         <tr>
                             <th>Menu</th>
-                            <th>Quantity</th>
+                            <th>Quantity/ KG</th>
                             <th class="text-center">Price (RM)</th>
                             <th class="text-center">Total (RM)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($order as $item)
-                        <tr>
-                            <td class="col-md-6"><em>{{ $item['food'] }}</em></h4></td>
-                            <td class="col-md-2 text-center">{{ $item['qty'] }}</td>
+                        @php
+                            $items = json_decode($order->items, true);
+                        @endphp
 
-                            <td class="col-md-2" style="text-align: center"> {{ $item['per_serving'] }} </td>
-                            <td class="col-md-2 text-center price">{{ $item['price'] }}</td>
-                        </tr>
+                        @foreach ($items as $item)
+                            <tr>
+                                <td class="col-md-6"><em>{{ $item['food'] }}
+                                        @if (isset($item['cook']))
+                                            (Menu: {{ $item['cook'] }})
+                                        @endif
+                                    </em>
+
+                                </td>
+                                <td class="col-md-2 text-center qty">{{ $item['qty'] }}</td>
+                                <td class="col-md-2 per_serving" style="text-align: center"> {{ $item['per_serving'] }}
+                                </td>
+                                <td class="col-md-2 text-center subtotal"></td>
+                            </tr>
                         @endforeach
 
+                        {{-- <tr>
+                            <td>   </td>
+                            <td>   </td>
+                            <td class="text-right">
+                                <p>
+                                    <strong>Subtotal: </strong>
+                                </p>
+                                <p>
+                                    <strong>Tax: </strong>
+                                </p>
+                            </td>
+                            <td class="text-center">
+                                <p class="price-sub-total">
+                                </p>
+                                <p class="price-tax">
+                                </p>
+                            </td>
+                        </tr> --}}
                         <tr>
                             <td>   </td>
                             <td>   </td>
                             <td class="text-right">
-                            <p>
-                                <strong>Subtotal: </strong>
-                            </p>
-                            <p>
-                                <strong>Tax: </strong>
-                            </p></td>
-                            <td class="text-center">
-                            <p class="price-sub-total">
-                            </p>
-                            <p class="price-tax">
-                            </p></td>
-                        </tr>
-                        <tr>
-                            <td>   </td>
-                            <td>   </td>
-                            <td class="text-right"><h4><strong>Total: </strong></h4></td>
-                            <td class="text-center text-danger price-total"><h4><strong></strong></h4></td>
+                                <h4><strong>Total: </strong></h4>
+                            </td>
+                            <td class="text-center text-danger price-total">
+                                <h4><strong></strong></h4>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -104,11 +114,11 @@
                     </div> --}}
 
                 </div>
-                
+
                 {{-- <button type="button" class="btn btn-success btn-lg btn-block">
                     Pay Now   <span class="glyphicon glyphicon-chevron-right"></span>
                 </button> --}}
-            </td>
+                </td>
             </div>
         </div>
     </div>
@@ -204,13 +214,28 @@
             var tax = price * 0.06;
             $('.price-tax').text(tax.toFixed(2));
 
+            // Calculate subtotal qty * per serving for each row
+            $('.subtotal').each(function() {
+                var qty = $(this).closest('tr').find('.qty').text();
+                // console.log(qty);
+                var per_serving = $(this).closest('tr').find('.per_serving').text();
+                // console.log(per_serving);
+
+                var subtotal = qty * per_serving;
+                $(this).text(subtotal.toFixed(2));
+            });
+
+
             // Calculate total
-            var total = price + tax;
+            var total = 0;
+            $('.subtotal').each(function() {
+                total += parseFloat($(this).text());
+            });
             $('.price-total').html(`<h4><strong>${total.toFixed(2)}</strong></h4>`);
 
 
 
-            
-            
+
+
         });
     </script>
