@@ -5,69 +5,76 @@
         @section('content_header')
             <div class="card">
                 <div class="card-header">
-                    <h1 class="float-left">Menus</h1> <a href="{{ route('menus.create') }}" class="btn btn-primary float-right clear-form"
-                        data-toggle="modal" data-target="#addMenuModal">Add
-                        Menu</a>
+                    <h1 class="float-left">Menus</h1>
+                    @if (auth()->user()->email == 'admin@dev.my')
+                        <a href="{{ route('menus.create') }}" class="btn btn-primary float-right clear-form" data-toggle="modal"
+                            data-target="#addMenuModal">Add
+                            Menu</a>
+                    @endif
 
                 </div>
             </div>
         @stop
 
         @section('content')
-            <div class="card">
-                <div class="card-body">
-                    <table id="tableMenu" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="text-center">#</th>
-                                <th scope="col" class="text-center">Name</th>
-                                <th scope="col" class="text-center">Description</th>
-                                <th scope="col" class="text-center">Category</th>
-                                <th scope="col" class="text-center">Price(RM)</th>
-                                {{-- <th scope="col" class="text-center">Image</th> --}}
-                                <th scope="col" class="text-center">Updated At</th>
-                                <th scope="col" class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($menus as $menu)
+            @if (auth()->user()->email == 'admin@dev.my')
+                <div class="card">
+                    <div class="card-body">
+                        <table id="tableMenu" class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <th scope="row">{{ $loop->iteration }}</th>
-                                    <td>{{ $menu->name }}</td>
-                                    <td>{{ $menu->description }}</td>
-                                    <td>{{ $menu->category->name }}</td>
-                                    <td>{{ $menu->price }}</td>
-                                    {{-- <td>
+                                    <th scope="col" class="text-center">#</th>
+                                    <th scope="col" class="text-center">Name</th>
+                                    <th scope="col" class="text-center">Description</th>
+                                    <th scope="col" class="text-center">Category</th>
+                                    <th scope="col" class="text-center">Price(RM)</th>
+                                    {{-- <th scope="col" class="text-center">Image</th> --}}
+                                    <th scope="col" class="text-center">Updated At</th>
+                                    <th scope="col" class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($menus as $menu)
+                                    <tr>
+                                        <th scope="row">{{ $loop->iteration }}</th>
+                                        <td>{{ $menu->name }}</td>
+                                        <td>{{ $menu->description }}</td>
+                                        <td>{{ $menu->category->name }}</td>
+                                        <td>{{ $menu->price }}</td>
+                                        {{-- <td>
                                         <img src="{{ asset('storage/images/menus/' . $menu->image) }}" alt="Menu Image"
                                             style="width: 100px; height: 100px;">
                                     </td> --}}
-                                    <td class="text-center">{{ $menu->updated_at->format('d/m/Y') }} <br>
-                                        {{ $menu->updated_at->format('H:i a') }}</td>
-                                    <td>
-                                        {{-- <a href="{{ route('menus.show', $menu->id) }}" class="btn btn-primary btn-sm"><i
+                                        <td class="text-center">{{ $menu->updated_at->format('d/m/Y') }} <br>
+                                            {{ $menu->updated_at->format('H:i a') }}</td>
+                                        <td>
+                                            {{-- <a href="{{ route('menus.show', $menu->id) }}" class="btn btn-primary btn-sm"><i
                                                 class="fas fa-eye"></i></a> --}}
 
-                                        <button type="button" class="btn btn-primary btn-sm viewButton" data-toggle="modal"
-                                            data-target="#addMenuModal" data-action="view" data-name="{{ $menu->name }}"
-                                            data-description="{{ $menu->description }}" data-category="{{ $menu->category->id }}"
-                                            data-price="{{ $menu->price }}"><i class="fas fa-eye"></i></button>
-                                        <button type="button" class="btn btn-warning btn-sm editButton" data-toggle="modal"
-                                            data-target="#addMenuModal" data-action="edit" data-name="{{ $menu->name }}"
-                                            data-description="{{ $menu->description }}" data-category="{{ $menu->category->id }}"
-                                            data-price="{{ $menu->price }}"><i class="fas fa-edit"></i></button>
-                                        <form action="{{ route('menus.destroy', $menu->id) }}" method="POST"
-                                            style="display: inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"><i
-                                                    class="fas fa-trash"></i></button>
-                                        </form>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                            <button type="button" class="btn btn-primary btn-sm viewButton" data-toggle="modal"
+                                                data-target="#addMenuModal" data-action="view" data-name="{{ $menu->name }}"
+                                                data-description="{{ $menu->description }}"
+                                                data-category="{{ $menu->category->id }}" data-price="{{ $menu->price }}"><i
+                                                    class="fas fa-eye"></i></button>
+                                            <button type="button" class="btn btn-warning btn-sm editButton" data-toggle="modal"
+                                                data-target="#addMenuModal" data-action="edit" data-name="{{ $menu->name }}"
+                                                data-description="{{ $menu->description }}"
+                                                data-category="{{ $menu->category->id }}" data-price="{{ $menu->price }}"><i
+                                                    class="fas fa-edit"></i></button>
+                                            <form action="{{ route('menus.destroy', $menu->id) }}" method="POST"
+                                                style="display: inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i
+                                                        class="fas fa-trash"></i></button>
+                                            </form>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Modal -->
             <div class="modal fade" id="addMenuModal" tabindex="-1" role="dialog" aria-labelledby="addMenuModalLabel"

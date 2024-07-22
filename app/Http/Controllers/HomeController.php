@@ -19,14 +19,22 @@ class HomeController extends Controller
 
     public function orders()
     {
-        $orders = Order::where('status', '!=', 'completed')->where('status', '!=', 'cancelled')->get();
+        $orders = Order::where('status', '!=', 'completed')
+                        ->where('status', '!=', 'cancelled')
+                        ->whereDate('created_at', today())
+                        ->get();
         return view('orders')->with('orders', $orders);
     }
 
     public function completed()
     {
         //get orders where status is completed or paid
-        $orders = Order::where('status', 'completed')->orWhere('status', 'paid')->get();
+        $orders = Order::where(function ($query) {
+            $query->where('status', 'completed')
+            ->orWhere('status', 'paid');
+        })
+        ->whereDate('created_at', today())
+        ->get();
         return view('completed')->with('orders', $orders);
     }
 
