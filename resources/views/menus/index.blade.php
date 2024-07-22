@@ -203,11 +203,15 @@
                                     text: 'Menu added successfully!',
                                     icon: 'success',
                                     confirmButtonText: 'Okay'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        clearForm();
+
+                                        location.reload();
+                                    }
                                 });
 
-                                clearForm();
 
-                                location.reload();
                             },
                             error: function(error) {
                                 console.log(error);
@@ -240,6 +244,68 @@
                         $('#addMenuButton').hide();
                     });
 
+                    // Edit menu button to save data using AJAX
+                    $('#editMenuButton').click(function() {
+                        // console.log('Edit menu button clicked');
+
+                        var name = $('#name').val();
+                        var description = $('#description').val();
+                        var category = $('#category').val();
+                        var price = $('#price').val();
+
+                        var formData = new FormData();
+                        formData.append('name', name);
+                        formData.append('description', description);
+                        formData.append('category', category);
+                        formData.append('price', price);
+
+                        Swal.fire({
+                            title: 'Please be patient!',
+                            allowOutsideClick: false,
+                            title: "Your request is being processed...",
+                            icon: "info",
+                            confirmButtonColor: "#3085d6",
+                            confirmButtonText: "Okay!",
+                            onload: () => {
+                                Swal.showLoading();
+                            },
+                        });
+
+                        $.ajax({
+                            url: "{{ route('menus.store') }}",
+                            type: 'POST',
+                            data: formData,
+                            contentType: false,
+                            processData: false,
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(response) {
+                                Swal.close();
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Menu updated successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'Okay'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        clearForm();
+
+                                        location.reload();
+                                    }
+                                });
+                            },
+                            error: function(error) {
+                                console.log(error);
+                                // Swal.fire({
+                                //     title: 'Error!',
+                                //     text: 'An error occurred while updating the menu!',
+                                //     icon: 'error',
+                                //     confirmButtonText: 'Okay'
+                                // });
+                            }
+                        });
+                    });
 
 
                     $('.viewButton').on('click', function(event) {
