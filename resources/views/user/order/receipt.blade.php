@@ -16,7 +16,7 @@
             <div class="row">
                 <div class="col text-right" style="margin-right: 10px">
                     {{-- <div class="btn btn-success btn-paid" style="display: none">Paid</div> --}}
-                    <div class="btn btn-danger btn-unpaid text-right">Unpaid</div>
+                    <div class="btn btn-success btn-paid text-right">Paid</div>
                 </div>
             </div>
             <br>
@@ -38,7 +38,7 @@
             </div>
             <div class="row">
                 <div class="text-center">
-                    <h1>Payment</h1>
+                    <h1>Receipt</h1>
                 </div>
                 </span>
                 <table class="table table-hover">
@@ -102,9 +102,14 @@
                     </tbody>
                 </table>
                 <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <button type="button" class="btn btn-warning btn-lg btn-block save-template" data-table-id="{{ $order->id }}">
+                            Save Order as Template
+                        </button></td>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
                         <button type="button" class="btn btn-success btn-lg btn-block btn-home">
-                            Pay Now
+                            Home
                         </button></td>
                     </div>
 
@@ -129,22 +134,15 @@
             const table = urlParams.get('table');
             const order_type = urlParams.get('order_type');
 
-
-
-            // get id from URL
-            const url = window.location.href;
-
-            const id = url.split('/').pop();
-
             $('.btn-home').click(function() {
                 Swal.fire({
-                    title: 'Payment Success',
-                    text: 'Thank you for your payment',
+                    title: 'Thank You',
+                    text: 'Please come again',
                     icon: 'success',
                     confirmButtonText: 'OK'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = "/order/receipt/" + id;
+                        window.location.href = "{{ route('mainpage.index') }}";
                     }
                 });
 
@@ -152,6 +150,61 @@
                 $('.btn-unpaid').hide();
                 $('.btn-paid').show();
 
+            });
+
+            // Button to save template with sweet alert input text to save all the order into database
+            $('.save-template').click(function() {
+                let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // get table id
+                let table_id = $(this).data('table-id');
+
+                Swal.fire({
+                    title: 'Save Template',
+                    input: 'text',
+                    inputLabel: 'Template Name',
+                    inputPlaceholder: 'Enter template name',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (template_name) => {
+                        // Save template to database using ajax
+                        return fetch("{{ route('order.save-template') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({
+                                phone: phone,
+                                table: table,
+                                table_id: table_id,
+                                order_type: order_type,
+                                order: @json($order),
+                                template_name: template_name
+                            })
+                        }).then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText)
+                            }
+                            return response.json()
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                            )
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log(result);
+                        Swal.fire({
+                            title: `Template saved as: ${result.value.template_name}`,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
             });
 
             // Calculate all items in table and update subtotal

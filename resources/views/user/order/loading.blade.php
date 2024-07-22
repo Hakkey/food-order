@@ -85,7 +85,7 @@
 
                         // add a link to the payment page
                         $('.payment-button').html('<a href="/order/payment/' + id +
-                            '">Click here to go to your order</a>');
+                            '" class="btn btn-primary">Click here to pay</a>');
                     }
                 },
                 error: function(error) {

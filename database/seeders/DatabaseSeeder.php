@@ -24,6 +24,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
+        User::factory()->create([
+            'name' => 'Staff',
+            'email' => 'staff@dev.my',
+            'password' => bcrypt('asdqwe123'),
+            'role' => 'staff',
+        ]);
+
         $categories = [
             ['name' => 'Appetizers'],
             ['name' => 'Soups'],

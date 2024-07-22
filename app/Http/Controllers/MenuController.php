@@ -50,19 +50,13 @@ class MenuController extends Controller
             'description' => 'required',
             'category' => 'required', 
             'price' => 'required',
-            'image' => 'required',
         ]);
-
-        // Save image to storage
-        $image = $request->file('image');
-        $image->storeAs('public/images/menus', $image->hashName());
 
         $menu = new Menu();
         $menu->name = $request->input('name');
         $menu->description = $request->input('description');
         $menu->category_id = $request->input('category');
         $menu->price = $request->input('price');
-        $menu->image = $image->hashName();
         $menu->save();
 
         //return json response with success message
@@ -87,7 +81,14 @@ class MenuController extends Controller
 
     public function destroy($id)
     {
-        // Add your logic here
+        
+    $menu = Menu::find($id);
+    if ($menu) {
+        $menu->delete();
+        return redirect()->route('menus.index')->with('success', 'Menu deleted successfully');
+    } else {
+        return redirect()->route('menus.index')->with('error', 'Menu not found');
+    }
     }
 
 

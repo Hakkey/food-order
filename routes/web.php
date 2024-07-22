@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\Admin;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', [App\Http\Controllers\MainPageController::class, 'index']);
+Route::get('/', [App\Http\Controllers\MainPageController::class, 'index'])->name('mainpage.index');
 // add route add to the cart using the CartController
 Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
 Route::post('/cart', [App\Http\Controllers\CartController::class, 'store'])->name('cart.add');
@@ -14,6 +14,7 @@ Route::post('/cart/save-for-later/{id}', [App\Http\Controllers\CartController::c
 // Add route for page order
 Route::get('/order', [App\Http\Controllers\OrderController::class, 'index'])->name('order.index');
 Route::get('order/payment/{id}', [App\Http\Controllers\OrderController::class, 'payment'])->name('order.payment');
+Route::get('order/receipt/{id}', [App\Http\Controllers\OrderController::class, 'receipt'])->name('order.receipt');
 // Route for saving template
 Route::post('order/save-template', [App\Http\Controllers\OrderController::class, 'saveTemplate'])->name('order.save-template');
 // Route for saving order
@@ -23,6 +24,12 @@ Route::get('order/loading/{id}', [App\Http\Controllers\OrderController::class, '
 
 // route to check order status
 Route::get('check-order-status', [App\Http\Controllers\OrderController::class, 'status'])->name('order.status');
+
+// route to check template by using phone number
+Route::get('check-template', [App\Http\Controllers\OrderController::class, 'checkTemplate'])->name('order.check-template');
+
+// route to order template
+Route::post('order/order-template', [App\Http\Controllers\OrderController::class, 'orderTemplate'])->name('order.order-template');
 
 
 
@@ -52,10 +59,20 @@ Route::group(['middleware' => ['auth', Admin::class], 'prefix' => 'admin'], func
 
     // orders page
     Route::get('orders', [App\Http\Controllers\HomeController::class, 'orders'])->name('orders.index');
+    // all completed orders
     Route::get('orders/completed', [App\Http\Controllers\HomeController::class, 'completed'])->name('orders.completed');
+    // all orders
+    Route::get('orders/all', [App\Http\Controllers\HomeController::class, 'allOrders'])->name('orders.all');
 
     // update order status
     Route::post('orders/update-status', [App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
 
 });
+
+// add middleware for staff
+// Route::group(['middleware' => ['auth', 'staff'], 'prefix' => 'staff'], function () {
+//     // Route::get('/dashboard', [App\Http\Controllers\HomeController::class, 'index'])->name('staff.dashboard');
+//     Route::get('/orders', [App\Http\Controllers\HomeController::class, 'orders'])->name('staff.orders');
+//     Route::get('/orders/completed', [App\Http\Controllers\HomeController::class, 'completed'])->name('staff.completed');
+// });
 

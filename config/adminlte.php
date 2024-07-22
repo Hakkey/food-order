@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'admin/dashboard',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -316,13 +316,6 @@ return [
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'Categories',
-            'url' => 'admin/categories',
-            'icon' => 'far fa-fw fa-file',
-            // 'label' => 4,
-            // 'label_color' => 'success',
-        ],
-        [
             'text' => 'Menus',
             'url' => 'admin/menus',
             'icon' => 'far fa-fw fa-list-alt',
@@ -339,6 +332,13 @@ return [
         [
             'text' => 'Completed Orders',
             'url' => 'admin/orders/completed',
+            'icon' => 'far fa-fw fa-list-alt',
+            // 'label' => 4,
+            // 'label_color' => 'success',
+        ],
+        [
+            'text' => 'All Orders',
+            'url' => 'admin/orders/all',
             'icon' => 'far fa-fw fa-list-alt',
             // 'label' => 4,
             // 'label_color' => 'success',

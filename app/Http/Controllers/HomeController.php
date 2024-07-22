@@ -7,21 +7,11 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
     public function index()
     {
         return view('home');
@@ -35,7 +25,15 @@ class HomeController extends Controller
 
     public function completed()
     {
-        $orders = Order::where('status', 'completed')->get();
+        //get orders where status is completed or paid
+        $orders = Order::where('status', 'completed')->orWhere('status', 'paid')->get();
         return view('completed')->with('orders', $orders);
+    }
+
+    public function allOrders()
+    {
+        // all order sort by newest date
+        $orders = Order::orderBy('created_at', 'desc')->get();
+        return view('order.index')->with('orders', $orders);
     }
 }

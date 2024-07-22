@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('templates', function (Blueprint $table) {
             $table->id();
             $table->string('phone_number');
+            $table->string('table');
+            $table->string('order_type');
             $table->string('name');
             $table->json('items');
             $table->timestamps();

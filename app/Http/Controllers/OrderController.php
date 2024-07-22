@@ -24,10 +24,33 @@ class OrderController extends Controller
         return view('user.order.payment', ['order' => $order]);
     }
 
+    public function receipt($id, Request $request)
+    {
+        $order = Order::find($id);
+        return view('user.order.receipt', ['order' => $order]);
+    }
+
     public function loading(Request $request)
     {
         $order = json_decode($request->query('order'), true);
         return view('user.order.loading', ['order' => $order]);
+    }
+
+    public function orderTemplate(Request $request)
+    {
+        $template_id = $request->input('template_id');
+        $template = Template::find($template_id);
+
+        $order = new Order;
+        $order->phone_number = $template->phone_number;
+        $order->table = $template->table;
+        $order->order_type = $template->order_type;
+        $order->items = $template->items;
+        $order->save();
+
+
+        return response()->json(['message' => 'Order saved successfully', 'order' => $order, 'order_id' => $order->id]);
+        // return view('user.order.order-template', ['template' => $template, 'order' => $order, 'order_id' => $order->id]);
     }
 
     public function save(Request $request)
@@ -36,7 +59,7 @@ class OrderController extends Controller
 
         // Assuming you have an Order model
         $newOrder = new Order;
-        // $newOrder->phone_number = $request->input('phone_number');
+        $newOrder->phone_number = $request->input('phone');
         $newOrder->table = $request->input('table');
         $newOrder->order_type = $request->input('order_type');
         $newOrder->items = json_encode($order);
@@ -54,20 +77,34 @@ class OrderController extends Controller
         // return response()->json(['message' => 'Order saved successfully']);
     }
 
+    public function checkTemplate(Request $request)
+    {
+        $phone = $request->input('phone');
+        $templates = Template::where('phone_number', $phone)->get();
+
+        if ($templates) {
+            return response()->json(['status' => 'found', 'templates' => $templates]);
+        }
+
+        return response()->json(['message' => 'Template not found']);
+    }
+
     public function saveTemplate(Request $request)
     {
-        // dd('asd');
         $order = $request->input('order');
-        // dd($order);
         $phone = $request->input('phone');
         $template_name = $request->input('template_name');
-        // Now you can use the $order array
+        $table_id = $request->input('table_id');
+
+        $order = Order::find($table_id);
 
         // Assuming you have a Template model
         $newTemplate = new Template;
-        $newTemplate->phone_number = $phone; 
+        $newTemplate->phone_number = $order->phone_number; 
         $newTemplate->name = $template_name;
-        $newTemplate->items = json_encode($order);
+        $newTemplate->items = $order->items;
+        $newTemplate->table = $order->table;
+        $newTemplate->order_type = $order->order_type;
         $newTemplate->save();
 
         return response()->json(['message' => 'Template saved successfully', 'order' => $order, 'phone' => $phone, 'template_name' => $template_name]);

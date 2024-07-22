@@ -1,14 +1,11 @@
 @extends('adminlte::page')
 
 @section('content')
-    @component('adminlte::page', ['title' => 'Menus'])
+    @component('adminlte::page', ['title' => 'Orders'])
         @section('content_header')
             <div class="card">
                 <div class="card-header">
-                    <h1 class="float-left">Menus</h1> <a href="{{ route('menus.create') }}" class="btn btn-primary float-right clear-form"
-                        data-toggle="modal" data-target="#addMenuModal">Add
-                        Menu</a>
-
+                    <h1 class="float-left">All Orders</h1>
                 </div>
             </div>
         @stop
@@ -19,97 +16,43 @@
                     <table id="tableMenu" class="table table-striped">
                         <thead>
                             <tr>
-                                <th scope="col" class="text-center">#</th>
-                                <th scope="col" class="text-center">Name</th>
-                                <th scope="col" class="text-center">Description</th>
-                                <th scope="col" class="text-center">Category</th>
-                                <th scope="col" class="text-center">Price(RM)</th>
-                                {{-- <th scope="col" class="text-center">Image</th> --}}
-                                <th scope="col" class="text-center">Updated At</th>
-                                <th scope="col" class="text-center">Action</th>
+                                <th scope="col" class="text-center">Table</th>
+                                <th scope="col" class="text-center">Order Type</th>
+                                <th scope="col" class="text-center">Items</th>
+                                <th scope="col" class="text-center">Status</th>
+                                <th scope="col" class="text-center">Total</th>
+                                <th scope="col" class="text-center">Date</th>
+                                <th scope="col" class="text-center">Phone Number</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($menus as $menu)
+                            
+                            @foreach ($orders as $order)
                                 <tr>
-                                    <th scope="row">{{ $loop->iteration }}</th>
-                                    <td>{{ $menu->name }}</td>
-                                    <td>{{ $menu->description }}</td>
-                                    <td>{{ $menu->category->name }}</td>
-                                    <td>{{ $menu->price }}</td>
-                                    {{-- <td>
-                                        <img src="{{ asset('storage/images/menus/' . $menu->image) }}" alt="Menu Image"
-                                            style="width: 100px; height: 100px;">
-                                    </td> --}}
-                                    <td class="text-center">{{ $menu->updated_at->format('d/m/Y') }} <br>
-                                        {{ $menu->updated_at->format('H:i a') }}</td>
-                                    <td>
-                                        {{-- <a href="{{ route('menus.show', $menu->id) }}" class="btn btn-primary btn-sm"><i
-                                                class="fas fa-eye"></i></a> --}}
-
-                                        <button type="button" class="btn btn-primary btn-sm viewButton" data-toggle="modal"
-                                            data-target="#addMenuModal" data-action="view" data-name="{{ $menu->name }}"
-                                            data-description="{{ $menu->description }}" data-category="{{ $menu->category->id }}"
-                                            data-price="{{ $menu->price }}"><i class="fas fa-eye"></i></button>
-                                        <button type="button" class="btn btn-warning btn-sm editButton" data-toggle="modal"
-                                            data-target="#addMenuModal" data-action="edit" data-name="{{ $menu->name }}"
-                                            data-description="{{ $menu->description }}" data-category="{{ $menu->category->id }}"
-                                            data-price="{{ $menu->price }}"><i class="fas fa-edit"></i></button>
-                                        <form action="{{ route('menus.destroy', $menu->id) }}" method="POST"
-                                            style="display: inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"><i
-                                                    class="fas fa-trash"></i></button>
-                                        </form>
+                                    <td class="text-center">{{ $order->table }}</td>
+                                    <td class="text-center">{{ $order->order_type }}</td>
+                                    <td class="text-center">
+                                        @foreach (json_decode($order->items, true) as $item)
+                                            <div class="row">
+                                                <div class="col">{{ array_key_exists('food', $item) ? $item['food'] : 'N/A' }}</div>
+                                                <div class="col text-center">
+                                                    @if (array_key_exists('qty', $item))
+                                                        {{ $item['qty'] }}
+                                                    @else
+                                                        1
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </td>
+                                    <td class="text-center">{{ $order->status }}</td>
+                                    <td class="text-center">{{ $order->total }}</td>
+                                    <td class="text-center">{{ $order->created_at->format('d/m/Y') }}</td>
+                                    <td class="text-center">{{ $order->phone_number }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Modal -->
-            <div class="modal fade" id="addMenuModal" tabindex="-1" role="dialog" aria-labelledby="addMenuModalLabel"
-                aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addMenuModalLabel">Add Menu</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                @csrf
-                                <div class="form-group">
-                                    <label for="name">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="category">Category</label>
-                                    <select class="form-control" id="category" name="category" required>
-                                        <option value="0">Select Category</option>
-                                        @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="price">Price</label>
-                                    <input type="number" class="form-control" id="price" name="price" required>
-                                </div>
-                                <button type="button" class="btn btn-primary float-right" id="addMenuButton">Save</button>
-                                <button type="button" class="btn btn-warning float-right" id="editMenuButton"
-                                    style="display: none;">Save</button>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
 

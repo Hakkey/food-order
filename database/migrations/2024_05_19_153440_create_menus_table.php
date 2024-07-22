@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->decimal('price', 8, 2);
-            $table->string('image');
             $table->boolean('is_active')->default(true);
             $table->foreignId('category_id')->constrained();            
             $table->timestamps();

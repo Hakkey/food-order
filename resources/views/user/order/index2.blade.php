@@ -129,7 +129,13 @@
             </div>
         </section><!-- End Menu Section -->
 
+        <div class="row">
+            <div class="col-lg-12">
 
+                <div class="templates-show"></div>
+
+            </div>
+        </div>
 
         <!-- ======= Whu Us Section ======= -->
         <section id="why-us" class="why-us">
@@ -255,6 +261,12 @@
     <script>
         $(document).ready(function() {
 
+            // Control phone number to be just numbers
+            $('#phone').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+
             var phone;
             var table;
             var order_type;
@@ -276,28 +288,99 @@
                 if (phone === '' || table === '') {
                     alert('Please fill in the fields');
                 } else {
-                    // Save the data to the database
-                    // $.ajax({
-                    //     url: '/order/save',
-                    //     type: 'POST',
-                    //     data: {
-                    //         _token: '{{ csrf_token() }}',
-                    //         phone: phone,
-                    //         table: table,
-                    //         order_type: order_type
-                    //     },
-                    //     success: function(response) {
-                    //         console.log(response);
-                    //     }
-                    // });
+                    // using ajax to check in template database for the phone number, if exist then load all the templates under the phone number to template-show
+                    $.ajax({
+                        url: '/check-template',
+                        type: 'GET',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            phone: phone
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            if (response.status === 'found') {
+                                // Close the modal
+                                $('#staticBackdrop').modal('hide');
+
+                                // loop through response.templates data into a list of templates
+                                var templates = response.templates;
+                                var templateList = '<div class="row">';
+                                templates.forEach(function(template) {
+                                    // template.items is already an array
+                                    var itemsArray = JSON.parse(template.items);
+
+                                    console.log(typeof itemsArray);
+
+                                    // Create a <ul> list of items
+                                    var itemsList = '<ul>';
+                                    itemsArray.forEach(function(item) {
+                                        itemsList += '<li>Quantity: ' + item
+                                            .qty + ', Food: ' + item.food +
+                                            ', Per Serving: ' + item
+                                            .per_serving + '</li>';
+                                    });
+                                    itemsList += '</ul>';
+
+                                    templateList +=
+                                        '<div class="col-md-4"><div class="card"><div class="card-body"><h5 class="card-title">' +
+                                        template.name + '</h5><p class="card-text">' +
+                                        itemsList +
+                                        '</p><button type="button" class="btn btn-primary order-template" data-id="' + template.id + '">Order</button></div></div></div>';
+                                });
+                                templateList += '</div>';
+
+                                $('.templates-show').html(templateList);
+                            } else {
+                                alert('Phone number not found');
+                            }
+                        }
+                    });
 
                     // Close the modal
                     $('#staticBackdrop').modal('hide');
                 }
             });
 
+            // make a function to add the template to the order list
+            $(document).on('click', '.order-template', function() {
+                // get the id of the template
+                var templateId = $(this).data('id');
 
+                // make an ajax request to send the template id to the server
+                $.ajax({
+                    url: '/order/order-template',
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        template_id: templateId
+                    },
+                    success: function(response) {
+                        window.location.href = '/order/loading/' + response.order_id;
 
+                        // console.log(response);
+                        // // loop through response.data and append to the order list
+                        // var orderList = '';
+                        // response.data.forEach(function(item) {
+                        //     orderList += '<div class="item mt-2"><div class="row"><div class="col-md-3 food-name">' +
+                        //         item.food + '</div><div class="col-md-3 food-price" data-price="' + item
+                        //         .per_serving + '">' +
+                        //         item.per_serving +
+                        //         '</div><div class="col-md-3 quantity"><button class="btn btn-sm btn-minus" data-id="' +
+                        //         item.id +
+                        //         '">-</button> <span class="qty">1</span> <button class="btn btn-sm btn-plus">+</button></div><div class="col-md-3 qty-price" data-price="' +
+                        //         item.per_serving + '">' + item.per_serving +
+                        //         '</div><div class="col-md-3"></div></div></div>';
+                        // });
+
+                        // $('.show-order').append(orderList);
+
+                        // calculateOrder();
+                        // calculateTotal();
+                        // calculateQuantity();
+                    }
+                });
+
+            });
 
             $('.add-to-order').click(function() {
                 $(this).hide();
@@ -392,28 +475,6 @@
                 }
             });
 
-            // Calculate price for seafood on input
-            // $(document).on('input', '.data-seafood-price', function() {
-            //     var priceElement = $(this).parent().next();
-            //     var price = parseFloat(priceElement.data('price').replace('RM ', ''));
-            //     var quantity = parseFloat($(this).val());
-
-            //     var total = quantity * price;
-            //     priceElement.text('RM ' + total.toFixed(2));
-
-            //     // Update total price
-            //     calculateTotal();
-            //     calculateQuantity();
-            // });
-
-            // data-seafood-price on focus out to prevent user from inputting negative value
-            // $(document).on('focusout', '.data-seafood-price', function() {
-            //     var quantity = parseFloat($(this).val());
-            //     if (quantity < 1) {
-            //         $(this).val(1);
-            //         quantity = 1;
-            //     }
-            // });
 
             // submit order to next page for payment with all the data to
             $('.submit-order').click(function() {

@@ -140,7 +140,7 @@
                     });
 
                     $.ajax({
-                        url: 'orders/update-status',
+                        url: 'update-status',
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
